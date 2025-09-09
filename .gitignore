@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.log
+coverage/
+dist/
+.vscode/
+.DS_Store
+Thumbs.db
+AppDataLocalflybin
