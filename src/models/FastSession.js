@@ -43,5 +43,7 @@ const FastSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+// helpful compound index
+FastSchema.index({ user: 1, startAt: -1 });
 
 export default mongoose.model('FastSession', FastSchema);

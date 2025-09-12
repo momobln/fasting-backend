@@ -9,21 +9,25 @@ import fastsRoutes from './routes/fasts.js';
 import goalsRoutes from './routes/goals.js';
 import statsRoutes from './routes/stats.js';
 
-import errorHandler from './middleware/error.js'; 
+import errorHandler from './middleware/error.js';
 
 const app = express();
 
 app.use(express.json());
 
+// CORS: ORIGIN single or comma list via CORS_ORIGINS
+const origins = (process.env.CORS_ORIGINS || process.env.ORIGIN || '').split(',').map(s => s.trim()).filter(Boolean);
 app.use(cors({
-  origin: [/^http:\/\/localhost:5173$/, /^http:\/\/localhost:5174$/],
-  methods: ['GET','POST','PATCH','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
+  origin: origins.length ? origins : undefined,
+  credentials: true
 }));
 
 app.use(helmet());
 app.use(morgan('dev'));
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
+
+// Light rate-limit for auth only
+const authLimiter = rateLimit({ windowMs: 15*60*1000, max: 100 });
+app.use('/auth', authLimiter);
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
@@ -31,6 +35,9 @@ app.use('/auth', authRoutes);
 app.use('/fasts', fastsRoutes);
 app.use('/goals', goalsRoutes);
 app.use('/stats', statsRoutes);
+
+// 404
+app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
 app.use(errorHandler);
 

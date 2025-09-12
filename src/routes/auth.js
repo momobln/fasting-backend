@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import User from '../models/User.js';
 import { validate } from '../middleware/validate.js';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -17,9 +18,9 @@ function signToken(user) {
     throw new Error('JWT_SECRET not configured');
   }
   return jwt.sign(
-    { sub: user._id.toString(), role: user.role },
+    { sub: user._id.toString(), email: user.email, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
 }
 
@@ -52,6 +53,14 @@ router.post('/login', validate(credSchema, 'body'), async (req, res, next) => {
   } catch (e) {
     next(e);
   }
+});
+// GET /auth/verify
+router.get('/verify', requireAuth, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.sub).select('email role createdAt').lean();
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    res.json({ user });
+  } catch (e) { next(e); }
 });
 
 export default router;

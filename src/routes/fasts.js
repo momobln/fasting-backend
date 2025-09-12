@@ -23,7 +23,14 @@ router.get('/', async (req, res) => {
     .lean();
   res.json(rows);
 });
-
+// GET /fasts/:id with populate
+router.get('/:id', validate(idSchema, 'params'), async (req, res) => {
+  const s = await Fast.findOne({ _id: req.valid.params.id, user: req.user.sub })
+    .populate('user', 'email')
+    .lean();
+  if (!s) return res.status(404).json({ error: 'Not found' });
+  res.json(s);
+});
 // POST /fasts/start
 const startSchema = z.object({
   preset: z.coerce.number().int().refine(v => [8,12,21].includes(v)),
