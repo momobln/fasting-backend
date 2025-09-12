@@ -23,6 +23,7 @@ router.get('/', async (req, res) => {
     .lean();
   res.json(rows);
 });
+
 // GET /fasts/:id with populate
 router.get('/:id', validate(idSchema, 'params'), async (req, res) => {
   const s = await Fast.findOne({ _id: req.valid.params.id, user: req.user.sub })
@@ -31,26 +32,32 @@ router.get('/:id', validate(idSchema, 'params'), async (req, res) => {
   if (!s) return res.status(404).json({ error: 'Not found' });
   res.json(s);
 });
+
 // POST /fasts/start
 const startSchema = z.object({
-  preset: z.coerce.number().int().refine(v => [8,12,21].includes(v)),
-  startAt: z.string().datetime().optional()
+	fastingHours: z.coerce
+		.number()
+		.int()
+		.refine((v) => [8, 12, 21].includes(v)),
+	startAt: z.string().datetime().optional(),
 });
+
 router.post('/start', validate(startSchema, 'body'), async (req, res) => {
-  const { preset, startAt } = req.valid.body;
+  const { fastingHours, startAt } = req.valid.body;
   const s = await Fast.create({
-    user: req.user.sub,
-    preset,
-    startAt: startAt ? new Date(startAt) : new Date()
+		user: req.user.sub,
+		fastingHours,
+		startAt: startAt ? new Date(startAt) : new Date(),
   });
   res.status(201).json(s);
 });
 
-// PATCH /fasts/:id/stop
-router.patch('/:id/stop', validate(idSchema, 'params'), async (req, res) => {
+// POST /fasts/:id/stop
+router.post('/:id/stop', validate(idSchema, 'params'), async (req, res) => {
+  console.log(req.params)
   const s = await Fast.findOne({ _id: req.valid.params.id, user: req.user.sub });
-  if (!s) return res.status(404).json({ error: 'Not found' });
-  if (s.endAt) return res.status(400).json({ error: 'Already stopped' });
+  if (!s) return res.status(404).json({ error: 'Fast ID not found' });
+  if (s.endAt) return res.status(400).json({ error: 'Fast already stopped' });
 
   s.endAt = new Date();
   s.durationMins = Math.max(0, Math.round((s.endAt - s.startAt) / 60000));
@@ -65,6 +72,7 @@ const editSchema = z.object({
   startAt: z.string().datetime().optional(),
   endAt: z.string().datetime().optional()
 });
+
 router.patch('/:id', validate(idSchema, 'params'), validate(editSchema, 'body'), async (req, res) => {
   const s = await Fast.findOne({ _id: req.valid.params.id, user: req.user.sub });
   if (!s) return res.status(404).json({ error: 'Not found' });
