@@ -10,14 +10,14 @@ async function main() {
   console.log('Connected');
 
   const email = 'demo@example.com';
-  const passwordHash = await bcrypt.hash('DemoPass123!', 12);
+  const passwordHash = await bcrypt.hash('DemoPass123!', 12); //Hash password "DemoPass123!" with 12 salt rounds.
   const user = await User.findOneAndUpdate(
     { email },
     { email, passwordHash },
     { upsert: true, new: true }
   );
-
-  const now = new Date();
+//Define time markers: now, yesterday, two days ago.
+  const now = new Date();   
   const yesterday = new Date(now.getTime() - 24*60*60*1000);
   const twoDays = new Date(now.getTime() - 2*24*60*60*1000);
 
@@ -33,3 +33,12 @@ async function main() {
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
+/* npm run seed
+  └─ src/seed.js
+       ├─ تحميل .env
+       ├─ connect(MONGODB_URI)
+       ├─ upsert مستخدم demo
+       ├─ حذف جلسات قديمة للمستخدم
+       ├─ إنشاء جلستين صيام تجريبية
+       └─ disconnect()
+*/

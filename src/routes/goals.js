@@ -6,9 +6,9 @@ import { requireAuth } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 
 const router = express.Router();
-router.use(requireAuth);
+router.use(requireAuth);   
 
-// Params :id schema
+// Params :id schema, 
 const idSchema = z.object({
   id: z.string().refine(mongoose.Types.ObjectId.isValid, { message: 'Invalid id' })
 });
@@ -67,3 +67,9 @@ router.delete('/:id', validate(idSchema, 'params'), async (req, res, next) => {
 });
 
 export default router;
+ /*
+ Summary:
+ هذا الراوتر يوفر CRUD كامل للأهداف (Goals).
+ كل العمليات محمية بـ JWT.
+ Zod يتحقق من id والـ body قبل الوصول إلى MongoDB.
+ النتائج دائماً تخص المستخدم الحالي (req.user.sub).  */

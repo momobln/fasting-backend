@@ -43,3 +43,8 @@ GoalSchema.index(
 );
 
 export default mongoose.model('Goal', GoalSchema);
+
+/*Summary
+هذا الـ Schema يعرّف أهداف المستخدم (أسبوعية أو شهرية).
+يضمن أن كل مستخدم لا يمكنه إنشاء أكثر من هدف أسبوعي واحد لنفس السنة والأسبوع.
+يتم التحقق من القيم (integer, enum, min/max).*/

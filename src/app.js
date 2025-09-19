@@ -1,8 +1,8 @@
 import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
+import cors from 'cors';       //cors: control which origins can access API
+import helmet from 'helmet';   //helmet: adds secure HTTP headers
+import morgan from 'morgan';   //morgan: logs HTTP requests in dev
+import rateLimit from 'express-rate-limit'; //express-rate-limit: limits request rate (anti brute-force)
 
 import authRoutes from './routes/auth.js';
 import fastsRoutes from './routes/fasts.js';
@@ -42,3 +42,27 @@ app.use('/stats', statsRoutes);
 app.use(errorHandler);
 
 export default app;
+/*
+
+هذا الملف هو الهيكل الأساسي لتطبيقك.
+
+يجهّز كل middlewares (CORS, helmet, morgan, JSON parsing).
+
+يحدد حماية خاصة لمسارات /auth.
+
+يربط جميع الـ routes.
+
+يضيف معالجة الأخطاء في النهاية.*/
+/* Client → HTTP Request
+  ├─ app.use(express.json())      ← تفكيك JSON
+  ├─ app.use(cors(...))           ← السماح للأصول
+  ├─ app.use(helmet())            ← رؤوس أمان
+  ├─ app.use(morgan('dev'))       ← لوج الطلبات
+  ├─ app.use('/auth', rateLimit)  ← تحديد معدل لمسارات auth
+  ├─ GET /health → { ok: true }
+  ├─ /auth   → authRoutes
+  ├─ /fasts  → fastsRoutes
+  ├─ /goals  → goalsRoutes
+  ├─ /stats  → statsRoutes
+  └─ app.use(errorHandler)        ← التقاط وإرجاع الأخطاء
+*/

@@ -64,3 +64,7 @@ router.get('/verify', requireAuth, async (req, res, next) => {
 });
 
 export default router;
+/* ربط سريع مع الواجهة الأمامية / Frontend link
+بعد signup أو login خزّن token في localStorage.
+axios interceptor لديك يرسل Authorization: Bearer <token> تلقائياً.
+GET /auth/verify يستخدمه الـ frontend لاسترجاع هوية المستخدم عند الإقلاع. */

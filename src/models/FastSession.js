@@ -47,3 +47,8 @@ const FastSchema = new mongoose.Schema(
 FastSchema.index({ user: 1, startAt: -1 });
 
 export default mongoose.model('FastSession', FastSchema);
+
+/* Summary
+هذا الـ Schema يعرّف جلسة صيام مرتبطة بمستخدم.
+يفرض قواعد صارمة (عدد الساعات، التواريخ، المدة، الملاحظات).
+يحتوي على فهارس لتحسين الأداء عند الاستعلام.*/

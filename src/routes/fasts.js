@@ -6,7 +6,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 
 const router = express.Router();
-router.use(requireAuth);
+router.use(requireAuth);      //guard all routes with JWT
 
 // utility schema for ObjectId params
 const idSchema = z.object({
@@ -99,3 +99,11 @@ router.delete('/:id', validate(idSchema, 'params'), async (req, res) => {
 });
 
 export default router;
+
+/*Request with Authorization: Bearer <JWT>
+  ├─ requireAuth                  ← يتحقق من JWT ويملأ req.user
+  ├─ validate(zodSchema, 'body')  ← يتحقق من المدخلات ويضع req.valid.body
+  ├─ Controller                   ← منطق العمل، استعلامات Mongoose
+  │     └─ Model.find/create/...  ← تواصل مع MongoDB
+  └─ Response JSON                ← يرجع البيانات أو خطأ 4xx/5xx
+*/
